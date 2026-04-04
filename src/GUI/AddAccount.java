@@ -1,101 +1,91 @@
 package GUI;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingConstants;
-import java.awt.Font;
-import java.awt.event.ActionListener;
+
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.SystemColor;
+import java.awt.event.ActionListener;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 public class AddAccount extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
+	private static final int BTN_W = 300;
 
-	/**
-	 * Create the frame.
-	 */
+	private JPanel contentPane;
+	private JLabel lblAddAccount;
+	private JButton btnSavings;
+	private JButton btnCurrent;
+	private JButton btnStudent;
+
 	public AddAccount() {
-		setTitle("Add Account");
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		contentPane = new JPanel();
-		contentPane.setBackground(SystemColor.activeCaption);
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-		JButton btnAddCurrentAccount = new JButton("Add Saving Account");
-		btnAddCurrentAccount.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(!GUIForm.addsavingsaccount.isVisible())
-				{
-					GUIForm.addsavingsaccount.setVisible(true);
-				}
-				else
-				{
-					JOptionPane.showMessageDialog(getComponent(0), "Already Opened", "Warning", 0);
-				}
-			
-				
-				dispose();
-			}
-		});
-		btnAddCurrentAccount.setBounds(118, 56, 193, 38);
-		contentPane.add(btnAddCurrentAccount);
-		
-		JButton button = new JButton("Add Current Account");
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(!GUIForm.addcurrentacc.isVisible())
-				{
-					GUIForm.addcurrentacc.setVisible(true);
-					dispose();
-				}
-				else
-				{
-					JOptionPane.showMessageDialog(getComponent(0), "Already Opened", "Warning", 0);
-				}
-				
-				
-			}
-		});
-		button.setBounds(118, 124, 193, 38);
-		contentPane.add(button);
-		
-		JButton btnAddStudentAccount = new JButton("Add Student Account");
-		btnAddStudentAccount.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(!GUIForm.addstudentaccount.isVisible())
-				{
-					
-					GUIForm.addstudentaccount.setVisible(true);
-					dispose();
-				}
-				
-				else
-				{
-					JOptionPane.showMessageDialog(getComponent(0), "Already Opened", "Warning", 0);
-				}
-			
-			}
-			
-			
-		});
-		btnAddStudentAccount.setBounds(118, 190, 193, 38);
-		contentPane.add(btnAddStudentAccount);
-		
-		JLabel lblAddAccount = new JLabel("Add Account");
-		lblAddAccount.setFont(new Font("Tahoma", Font.BOLD, 16));
+		UITheme.styleFormSurface(this, contentPane, "New account");
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+		contentPane.add(Box.createVerticalStrut(16));
+
+		lblAddAccount = new JLabel("Choose account type");
+		UITheme.styleHeadlineLabel(lblAddAccount);
+		lblAddAccount.setAlignmentX(Component.CENTER_ALIGNMENT);
 		lblAddAccount.setHorizontalAlignment(SwingConstants.CENTER);
-		lblAddAccount.setBounds(108, 11, 210, 34);
 		contentPane.add(lblAddAccount);
+		contentPane.add(Box.createVerticalStrut(20));
+
+		btnSavings = new JButton("Savings account");
+		UITheme.styleMenuActionButton(btnSavings, BTN_W);
+		btnSavings.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnSavings.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				WindowTools.showAndBringToFront(GUIForm.addsavingsaccount);
+				setVisible(false);
+			}
+		});
+		contentPane.add(btnSavings);
+		contentPane.add(Box.createVerticalStrut(10));
+
+		btnCurrent = new JButton("Current account");
+		UITheme.styleMenuActionButton(btnCurrent, BTN_W);
+		btnCurrent.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnCurrent.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				WindowTools.showAndBringToFront(GUIForm.addcurrentacc);
+				setVisible(false);
+			}
+		});
+		contentPane.add(btnCurrent);
+		contentPane.add(Box.createVerticalStrut(10));
+
+		btnStudent = new JButton("Student account");
+		UITheme.styleMenuActionButton(btnStudent, BTN_W);
+		btnStudent.setAlignmentX(Component.CENTER_ALIGNMENT);
+		btnStudent.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				WindowTools.showAndBringToFront(GUIForm.addstudentaccount);
+				setVisible(false);
+			}
+		});
+		contentPane.add(btnStudent);
+		contentPane.add(Box.createVerticalGlue());
+
+		pack();
+		Dimension d = getPreferredSize();
+		setMinimumSize(new Dimension(Math.max(420, d.width), Math.max(320, d.height)));
+		setLocationRelativeTo(null);
+	}
+
+	void applyThemeColors() {
+		contentPane.setBackground(UITheme.PAGE_BG);
+		UITheme.styleHeadlineLabel(lblAddAccount);
+		UITheme.styleMenuActionButton(btnSavings, BTN_W);
+		UITheme.styleMenuActionButton(btnCurrent, BTN_W);
+		UITheme.styleMenuActionButton(btnStudent, BTN_W);
 	}
 }

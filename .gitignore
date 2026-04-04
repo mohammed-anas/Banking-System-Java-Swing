@@ -1,0 +1,18 @@
+# Compiled output — rebuild with build.bat or javac (see README)
+bin/
+*.class
+
+# Serialized runtime data (created locally on first run; not shared)
+data
+
+# javac @file list from build scripts
+sources.txt
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# JVM crash logs
+hs_err_pid*.log
+replay_pid*.log

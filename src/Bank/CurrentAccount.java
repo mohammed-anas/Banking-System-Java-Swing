@@ -14,6 +14,11 @@ public class CurrentAccount extends BankAccount {
 		this.tradeLicenseNumber= tradeLicenseNumber;
 //		this.type="Current Account";
 	}
+
+	@Override
+	public String toString() {
+		return super.toString() + ", Trade License: " + tradeLicenseNumber;
+	}
 	
 	
 }

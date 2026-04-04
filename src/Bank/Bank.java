@@ -22,11 +22,15 @@ public class Bank implements Serializable {
 				break;
 			}
 		}
+		if (i >= 100)
+		{
+			throw new IllegalStateException("Maximum number of accounts (100) reached");
+		}
 		getAccounts()[i]=acc;
 		return i;
 	}
 	
-	public int addAccount(String name, double balance, double maxWithLimit )
+	public int addAccount(String name, double balance, double maxWithLimit ) throws Exception
 	{
 		SavingsAccount acc=new SavingsAccount(name, balance, maxWithLimit);
 		return this.addAccount(acc);
@@ -38,7 +42,7 @@ public class Bank implements Serializable {
 		return this.addAccount(acc);
 	}
 	
-	public int addAccount(String name, String  institutionName, double balance, double min_balance)
+	public int addAccount(String name, String  institutionName, double balance, double min_balance) throws Exception
 	{
 		StudentAccount acc= new StudentAccount(name,balance,institutionName);
 		return this.addAccount(acc);
@@ -46,6 +50,10 @@ public class Bank implements Serializable {
 	
 	public BankAccount findAccount(String aacountNum)
 	{
+		if (aacountNum == null) {
+			return null;
+		}
+		String key = aacountNum.trim();
 		int i;
 		for(i=0;i<100;i++)
 		{
@@ -53,7 +61,8 @@ public class Bank implements Serializable {
 			{
 				break;
 			}
-			if(getAccounts()[i].acc_num.equals(aacountNum))
+			String num = getAccounts()[i].getAccNum();
+			if (num != null && num.equals(key))
 			{
 				return getAccounts()[i];
 			}
@@ -97,9 +106,12 @@ public class Bank implements Serializable {
 			throw new InvalidAmount("Invalid Amount");
 		}
 		
-		if(amt>temp.getbalance())
+		if (amt > temp.getbalance())
 		{
-			throw new MaxBalance("Insufficient Balance");
+			throw new MaxBalance(String.format(
+					"The amount you want to withdraw (%.2f) is higher than your current balance (%.2f).\n\n"
+							+ "You can withdraw at most %.2f. Please enter a smaller amount.",
+					amt, temp.getbalance(), temp.getbalance()));
 		}
 		if(temp!=null)
 		{

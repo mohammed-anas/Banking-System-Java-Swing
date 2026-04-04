@@ -1,161 +1,312 @@
 package GUI;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.BorderFactory;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import Bank.BankAccount;
 import Data.FileIO;
-
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import java.awt.Font;
-import java.awt.Image;
-
-import javax.swing.JButton;
-import javax.swing.SwingConstants;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.SystemColor;
-import javax.swing.ImageIcon;
-import javax.swing.Icon;
 
 public class Menu extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
+	private static final int ACTION_WIDTH = 340;
+	private static final String BANNER_TITLE = "ApexTrust Retail Banking";
+	private static final String BANNER_TAG = "Account servicing · Cash movements · Reporting";
 
-	/**
-	 * Create the frame.
-	 */
+	private JPanel rootPanel;
+	private JPanel northStack;
+	private JPanel bannerPanel;
+	private JPanel dashPanel;
+	private JPanel themeWell;
+	private JPanel footerPanel;
+	private JLabel section;
+	private JLabel hint;
+	private JLabel lblDashboard;
+	private JLabel lblSession;
+	private JLabel lblTheme;
+	private JComboBox<String> themeCombo;
+	private boolean themeEventsLive;
+	private final List<JButton> taskButtons = new ArrayList<>();
+	private JButton btnSaveLogout;
+
 	public Menu() {
-		setTitle("Banking System");
+		setTitle("ApexTrust — Operations Console");
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		setBounds(100, 100, 649, 474);
-		contentPane = new JPanel();
-		contentPane.setBackground(SystemColor.activeCaption);
-		contentPane.setForeground(SystemColor.activeCaption);
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-		
-		JLabel lblBankingSystem = new JLabel("Banking System");
-		lblBankingSystem.setHorizontalAlignment(SwingConstants.CENTER);
-		lblBankingSystem.setFont(new Font("Tahoma", Font.BOLD, 24));
-		lblBankingSystem.setBounds(0, 69, 613, 59);
-		contentPane.add(lblBankingSystem);
-		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				saveAndReturnToLogin();
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
+				refreshDashboard();
+			}
+		});
+
+		rootPanel = new JPanel(new BorderLayout());
+		rootPanel.setBackground(UITheme.PAGE_BG);
+
+		northStack = new JPanel(new BorderLayout());
+		northStack.setOpaque(false);
+		bannerPanel = UITheme.createHeaderBanner(BANNER_TITLE, BANNER_TAG, 88);
+		northStack.add(bannerPanel, BorderLayout.NORTH);
+
+		dashPanel = new JPanel(new GridBagLayout());
+		dashPanel.setBorder(new EmptyBorder(10, 28, 12, 28));
+		dashPanel.setBackground(UITheme.DASH_PANEL_BG);
+
+		GridBagConstraints dc = new GridBagConstraints();
+		dc.gridx = 0;
+		dc.gridy = 0;
+		dc.weightx = 1;
+		dc.fill = GridBagConstraints.HORIZONTAL;
+		dc.anchor = GridBagConstraints.WEST;
+		dc.insets = new Insets(0, 0, 6, 0);
+		lblDashboard = new JLabel(" ");
+		lblDashboard.setFont(UITheme.fontBody());
+		lblDashboard.setForeground(UITheme.PAGE_HEADING);
+		dashPanel.add(lblDashboard, dc);
+
+		dc.gridy = 1;
+		dc.insets = new Insets(0, 0, 8, 0);
+		lblSession = new JLabel(" ");
+		lblSession.setFont(UITheme.fontSmall());
+		lblSession.setForeground(UITheme.PAGE_SECONDARY);
+		dashPanel.add(lblSession, dc);
+
+		dc.gridy = 2;
+		dc.insets = new Insets(0, 0, 0, 0);
+		JPanel themeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		themeRow.setOpaque(false);
+		themeWell = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
+		themeWell.setOpaque(true);
+		themeWell.setBackground(UITheme.CARD_BG);
+		themeWell.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(UITheme.MENU_BORDER, 1),
+				BorderFactory.createEmptyBorder(6, 14, 6, 14)));
+		lblTheme = new JLabel("Theme");
+		lblTheme.setFont(UITheme.fontBody());
+		lblTheme.setForeground(UITheme.PAGE_HEADING);
+		themeWell.add(lblTheme);
+		themeCombo = new JComboBox<>(new String[] { "Light", "Dark", "Slate" });
+		themeCombo.setFont(UITheme.fontBody());
+		applyComboThemeColors();
+		themeEventsLive = false;
+		ThemePrefs.Id loaded = ThemePrefs.load();
+		themeCombo.setSelectedIndex(loaded.ordinal());
+		themeCombo.addActionListener(e -> onThemeSelected());
+		themeWell.add(themeCombo);
+		themeRow.add(themeWell);
+		dashPanel.add(themeRow, dc);
+
+		northStack.add(dashPanel, BorderLayout.SOUTH);
+		themeEventsLive = true;
+
+		rootPanel.add(northStack, BorderLayout.NORTH);
+
 		FileIO.Read();
-		
-//		JButton btnAddAccount = new JButton("Add Account");
-//		btnAddAccount.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				if(!GUIForm.addaccount.isVisible())
-//				{
-//					GUIForm.addaccount.setVisible(true);
-//				}
-//				else
-//				{
-//					JOptionPane.showMessageDialog(getComponent(0), "Already Opened", "Warning", 0);
-//				}
-//				
-//			}
-//		});
-//		btnAddAccount.setBounds(217, 162, 194, 40);
-//		contentPane.add(btnAddAccount);
-		
-		JButton btnDepositToAccount = new JButton("Deposit To Account");
-		btnDepositToAccount.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(!GUIForm.depositacc.isVisible())
-				{
-					GUIForm.depositacc.setVisible(true);
-				}
-				else
-				{
-					JOptionPane.showMessageDialog(getComponent(0), "Already Opened", "Warning", 0);
-				}
-				
-			}
+
+		JPanel body = new JPanel(new BorderLayout(32, 0));
+		body.setOpaque(false);
+		body.setBorder(new EmptyBorder(24, 36, 20, 36));
+
+		JPanel actions = new JPanel();
+		actions.setLayout(new BoxLayout(actions, BoxLayout.Y_AXIS));
+		actions.setOpaque(false);
+
+		section = new JLabel("Operations");
+		section.setFont(UITheme.fontHeadline());
+		section.setForeground(UITheme.PAGE_HEADING);
+		section.setAlignmentX(Component.CENTER_ALIGNMENT);
+		actions.add(section);
+		actions.add(Box.createVerticalStrut(8));
+
+		hint = new JLabel();
+		hint.setFont(UITheme.fontSmall());
+		setMenuHintHtml();
+		hint.setAlignmentX(Component.CENTER_ALIGNMENT);
+		actions.add(hint);
+		actions.add(Box.createVerticalStrut(22));
+
+		addTaskAction(actions, new JButton("Add account"), e -> openSingle(GUIForm.addaccount));
+		addTaskAction(actions, new JButton("Deposit to account"), e -> openSingle(GUIForm.depositacc));
+		addTaskAction(actions, new JButton("Withdraw from account"), e -> openSingle(GUIForm.withdraw));
+		addTaskAction(actions, new JButton("Display account list"), e -> openSingle(GUIForm.displaylist));
+		addTaskAction(actions, new JButton("Transaction report"), e -> openTransactionReport());
+
+		actions.add(Box.createVerticalStrut(18));
+
+		btnSaveLogout = new JButton("Save and Log out");
+		UITheme.stylePrimaryButton(btnSaveLogout);
+		UITheme.styleMenuActionButton(btnSaveLogout, ACTION_WIDTH);
+		btnSaveLogout.setHorizontalAlignment(SwingConstants.CENTER);
+		btnSaveLogout.addActionListener(e -> saveAndReturnToLogin());
+		btnSaveLogout.setAlignmentX(Component.CENTER_ALIGNMENT);
+		actions.add(btnSaveLogout);
+
+		body.add(actions, BorderLayout.CENTER);
+
+		JPanel side = new JPanel(new GridLayout(1, 1));
+		side.setOpaque(false);
+		side.setPreferredSize(new Dimension(220, 260));
+		javax.swing.ImageIcon sideLogo = UITheme.loadBankingLogo(200);
+		if (sideLogo != null) {
+			JLabel img = new JLabel(sideLogo, SwingConstants.CENTER);
+			img.setOpaque(false);
+			side.add(img);
+		} else {
+			side.add(new EnterpriseLogo(200));
+		}
+		body.add(side, BorderLayout.EAST);
+
+		rootPanel.add(body, BorderLayout.CENTER);
+		footerPanel = UITheme.createPageFooter("Confidential — ApexTrust internal banking console · v1.0");
+		rootPanel.add(footerPanel, BorderLayout.SOUTH);
+
+		setContentPane(rootPanel);
+		setMinimumSize(new Dimension(780, 620));
+		pack();
+		setLocationRelativeTo(null);
+		refreshDashboard();
+	}
+
+	private void addTaskAction(JPanel actions, JButton btn, java.awt.event.ActionListener listener) {
+		btn.addActionListener(listener);
+		UITheme.styleMenuActionButton(btn, ACTION_WIDTH);
+		actions.add(btn);
+		actions.add(Box.createVerticalStrut(10));
+		taskButtons.add(btn);
+	}
+
+	private void setMenuHintHtml() {
+		hint.setText(UITheme.htmlDiv(
+				"Select a task below. Each module opens in its own window. Choosing the same task again brings that window to the front (Close or ✕ hides it).",
+				360, UITheme.PAGE_SECONDARY));
+	}
+
+	private void applyComboThemeColors() {
+		themeCombo.setBackground(UITheme.CARD_BG);
+		themeCombo.setForeground(UITheme.TEXT_LABEL);
+	}
+
+	private void onThemeSelected() {
+		if (!themeEventsLive) {
+			return;
+		}
+		ThemePrefs.Id id = ThemePrefs.Id.values()[themeCombo.getSelectedIndex()];
+		ThemePrefs.save(id);
+		UITheme.applyTheme(id);
+		UITheme.refreshAllWindowTrees();
+		SwingUtilities.invokeLater(() -> {
+			GUIForm.reapplyThemeAcrossApp();
+			applyComboThemeColors();
 		});
-		btnDepositToAccount.setBounds(217, 213, 194, 33);
-		contentPane.add(btnDepositToAccount);
-		
-		JButton btnWithdrawFromAccount = new JButton("Withdraw From Account");
-		btnWithdrawFromAccount.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(!GUIForm.withdraw.isVisible())
-				{
-					GUIForm.withdraw.setVisible(true);
-				}
-				else
-				{
-					JOptionPane.showMessageDialog(getComponent(0), "Already Opened", "Warning", 0);
-				}
-				
-				
+	}
+
+	public void refreshDashboard() {
+		BankAccount[] accounts = FileIO.bank.getAccounts();
+		int n = 0;
+		double sumBal = 0;
+		for (int i = 0; i < accounts.length; i++) {
+			if (accounts[i] == null) {
+				break;
 			}
-			
-		});
-		btnWithdrawFromAccount.setBounds(217, 256, 194, 33);
-		contentPane.add(btnWithdrawFromAccount);
-		
-		JButton btnDisplayAccountList = new JButton("Display Account List");
-		btnDisplayAccountList.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			
-				if(!GUIForm.displaylist.isVisible())
-				{
-					GUIForm.displaylist.setVisible(true);
-				}
-				else
-				{
-					JOptionPane.showMessageDialog(getComponent(0), "Already Opened", "Warning", 0);
-				}
-				
+			n++;
+			sumBal += accounts[i].getbalance();
+		}
+		lblDashboard.setText(String.format(
+				"Branch — %d account(s)  ·  Total balances %,.2f  ·  Session deposits %,.2f",
+				Integer.valueOf(n), Double.valueOf(sumBal), Double.valueOf(SessionContext.getSessionDepositTotal())));
+		if (SessionContext.getSessionStartMs() == 0) {
+			lblSession.setText("Session: sign in to start a timed console session.");
+		} else {
+			lblSession.setText(SessionContext.getSessionStartedLine());
+		}
+	}
+
+	public void reapplyChromeAfterTheme() {
+		northStack.remove(bannerPanel);
+		bannerPanel = UITheme.createHeaderBanner(BANNER_TITLE, BANNER_TAG, 88);
+		northStack.add(bannerPanel, BorderLayout.NORTH);
+		northStack.revalidate();
+		northStack.repaint();
+
+		rootPanel.setBackground(UITheme.PAGE_BG);
+		dashPanel.setBackground(UITheme.DASH_PANEL_BG);
+		lblDashboard.setForeground(UITheme.PAGE_HEADING);
+		lblSession.setForeground(UITheme.PAGE_SECONDARY);
+		lblTheme.setForeground(UITheme.PAGE_HEADING);
+		themeWell.setBackground(UITheme.CARD_BG);
+		themeWell.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(UITheme.MENU_BORDER, 1),
+				BorderFactory.createEmptyBorder(6, 14, 6, 14)));
+		applyComboThemeColors();
+
+		section.setForeground(UITheme.PAGE_HEADING);
+		setMenuHintHtml();
+
+		for (JButton b : taskButtons) {
+			UITheme.styleMenuActionButton(b, ACTION_WIDTH);
+		}
+		UITheme.stylePrimaryButton(btnSaveLogout);
+		UITheme.styleMenuActionButton(btnSaveLogout, ACTION_WIDTH);
+
+		footerPanel.setBackground(UITheme.PAGE_BG);
+		for (Component c : footerPanel.getComponents()) {
+			if (c instanceof JLabel) {
+				((JLabel) c).setForeground(UITheme.TEXT_MUTED);
 			}
-		});
-		btnDisplayAccountList.setBounds(217, 300, 194, 32);
-		contentPane.add(btnDisplayAccountList);
-		
-		JButton btnExit = new JButton("Exit");
-		btnExit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane.showMessageDialog(getComponent(0), "Thanks For Using") ;
-				FileIO.Write();
-				System.exit(0);
+		}
+	}
+
+	private void saveAndReturnToLogin() {
+		FileIO.Write();
+		hideToolWindows();
+		setVisible(false);
+		GUIForm.login.showAfterLogout();
+	}
+
+	private static void hideToolWindows() {
+		JFrame[] tools = { GUIForm.addaccount, GUIForm.addcurrentacc, GUIForm.addsavingsaccount,
+				GUIForm.addstudentaccount, GUIForm.displaylist, GUIForm.depositacc, GUIForm.withdraw,
+				GUIForm.transactionReport };
+		for (JFrame f : tools) {
+			if (f != null && f.isVisible()) {
+				f.setVisible(false);
 			}
-		});
-		btnExit.setBounds(217, 343, 194, 33);
-		contentPane.add(btnExit);
-		
-		JButton btnNewButton = new JButton("Add Account");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			if(!GUIForm.addaccount.isVisible())
-			{
-				GUIForm.addaccount.setVisible(true);
-			}
-			else
-			{
-				JOptionPane.showMessageDialog(getComponent(0), "Already Opened", "Warning", 0);
-			}
-				
-				
-			}
-			
-		});
-		btnNewButton.setBounds(217, 166, 194, 36);
-		contentPane.add(btnNewButton);
-		
-		JLabel lblNewLabel = new JLabel("New label");
-		lblNewLabel.setIcon(new ImageIcon(Menu.class.getResource("/img/1.png")));
-		lblNewLabel.setBounds(397, 166, 216, 213);
-		contentPane.add(lblNewLabel);
-		
-		//Image image=GenerateImage.toImage(true);  //this generates an image file
-		ImageIcon icon = new ImageIcon("1.png");
+		}
+	}
+
+	private void openSingle(JFrame target) {
+		target.setLocationRelativeTo(this);
+		WindowTools.showAndBringToFront(target);
+	}
+
+	private void openTransactionReport() {
+		GUIForm.transactionReport.setLocationRelativeTo(this);
+		WindowTools.showAndBringToFront(GUIForm.transactionReport);
 	}
 }

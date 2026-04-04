@@ -35,23 +35,21 @@ public static Bank bank=null;
 			}
 			catch (IOException en) {
 					}
-			
 		}
 		//return bank;
 	}
 	
 	public static void Write()
 	{
-		try {
-			FileOutputStream fout=new FileOutputStream("data");
-			ObjectOutputStream out=new ObjectOutputStream(fout);
+		if (bank == null) {
+			return;
+		}
+		try (FileOutputStream fout = new FileOutputStream("data");
+				ObjectOutputStream out = new ObjectOutputStream(fout)) {
 			out.writeObject(FileIO.bank);
 			out.flush();
-			fout.close();
-			}
-			catch(Exception en)
-			{
-				
-			}
+		} catch (Exception en) {
+			System.err.println("Could not save data. Check that the folder is writable and you have enough disk space.");
+		}
 	}
 }

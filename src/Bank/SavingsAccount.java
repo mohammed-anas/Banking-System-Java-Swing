@@ -12,10 +12,13 @@ public class SavingsAccount extends BankAccount {
 	double maxWithLimit;
 //	String type;
 	
-	public SavingsAccount(String name, double balance,double maxWithLimit) {
-		super(name, balance, 2000);
-		this.maxWithLimit= maxWithLimit;
-//		this.type="Savings Account";
+	protected SavingsAccount(String name, double balance, double maxWithLimit, double minBalance) throws Exception {
+		super(name, balance, minBalance);
+		this.maxWithLimit = maxWithLimit;
+	}
+
+	public SavingsAccount(String name, double balance, double maxWithLimit) throws Exception {
+		this(name, balance, maxWithLimit, 2000);
 	}
 	
 	public double getNetBalance()
@@ -26,14 +29,19 @@ public class SavingsAccount extends BankAccount {
 	
 	public void withdraw(double amount) throws MaxWithdraw, MaxBalance
 	{
-		if(amount<maxWithLimit)
+		if(amount <= maxWithLimit)
 		{
 			super.withdraw(amount);
 			
 		}
 		else
 		{
-			throw new MaxWithdraw("Maximum Withdraw Limit Exceed");
+			String msg = String.format(
+					"On this account, each withdrawal is limited to %.2f per transaction (the maximum withdrawal limit you chose when opening the account).\n\n"
+							+ "You tried to withdraw %.2f, which is above that limit.\n\n"
+							+ "Please withdraw %.2f or less, or make several smaller withdrawals if your bank rules allow it.",
+					maxWithLimit, amount, maxWithLimit);
+			throw new MaxWithdraw(msg);
 		}
 		
 	}
