@@ -2,6 +2,7 @@
 
 Desktop banking demo built with Java Swing, with an **enterprise-style console** (navy / gold theme, header banner, optional logo). You can add savings, current, and student accounts; deposit and withdraw; list accounts; and persist all data to a local file.
 
+
 ## Requirements
 
 - **JDK 17 or newer** (the project was verified with OpenJDK 25). Install a JDK and ensure `javac` and `java` are on your `PATH`.
