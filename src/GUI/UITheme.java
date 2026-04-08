@@ -376,6 +376,28 @@ public final class UITheme {
 		b.setAlignmentX(Component.CENTER_ALIGNMENT);
 	}
 
+	/**
+	 * Menu task buttons in a multi-column grid: same chrome as menu actions but centered text and no
+	 * fixed max width so {@link java.awt.GridBagLayout} can share space evenly.
+	 */
+	public static void styleMenuGridCellButton(javax.swing.JButton b) {
+		b.setFont(fontButton());
+		b.setHorizontalAlignment(SwingConstants.CENTER);
+		b.setOpaque(true);
+		b.setFocusPainted(false);
+		if (isDarkTheme()) {
+			b.setBackground(INPUT_FIELD_BG);
+			b.setForeground(TEXT_LABEL);
+		} else {
+			b.setBackground(Color.WHITE);
+			b.setForeground(PAGE_HEADING);
+		}
+		b.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(MENU_BORDER, 1),
+				BorderFactory.createEmptyBorder(12, 12, 12, 12)));
+		b.setPreferredSize(new Dimension(160, 48));
+		b.setMinimumSize(new Dimension(120, 44));
+	}
+
 	/** Outlined actions (Reset, Close, View report, …) on form surfaces. */
 	public static void styleSecondaryButton(javax.swing.JButton b) {
 		b.setFont(fontBody());

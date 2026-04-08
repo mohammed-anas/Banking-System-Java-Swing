@@ -92,6 +92,25 @@ public class Bank implements Serializable {
 	}
 	
 	
+	/**
+	 * Changes the per-transaction withdrawal cap for a savings or student account.
+	 * Current accounts are not limited per transaction and cannot use this operation.
+	 */
+	public void setMaxWithdrawPerTransaction(String accountNum, double newLimit) throws AccNotFound {
+		if (newLimit <= 0) {
+			throw new IllegalArgumentException("Maximum withdrawal per transaction must be greater than zero.");
+		}
+		BankAccount acc = findAccount(accountNum);
+		if (acc == null) {
+			throw new AccNotFound("Account Not Found");
+		}
+		if (!(acc instanceof SavingsAccount)) {
+			throw new IllegalArgumentException(
+					"Only savings and student accounts have a per-transaction withdrawal limit. Current accounts are not limited this way.");
+		}
+		((SavingsAccount) acc).setMaxWithdrawLimit(newLimit);
+	}
+
 	public void withdraw(String aacountNum, double amt) throws MaxBalance,AccNotFound, MaxWithdraw, InvalidAmount
 	{
 		BankAccount temp=findAccount(aacountNum);

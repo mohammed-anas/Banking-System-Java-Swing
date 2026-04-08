@@ -92,7 +92,7 @@ public class DisplayList extends JFrame {
 			filterRow.add(tfFilter, BorderLayout.CENTER);
 			center.add(filterRow, BorderLayout.NORTH);
 
-			String[] cols = { "#", "Account Id", "Name", "Type", "Balance" };
+			String[] cols = { "#", "Account Id", "Name", "Type", "Balance", "Max per withdrawal" };
 			DefaultTableModel model = new DefaultTableModel(cols, 0) {
 				private static final long serialVersionUID = 1L;
 
@@ -119,7 +119,7 @@ public class DisplayList extends JFrame {
 					break;
 				}
 				model.addRow(new Object[] { Integer.valueOf(n++), acc.getAccNum(), acc.getName(), typeLabel(acc),
-						Double.valueOf(acc.getbalance()) });
+						Double.valueOf(acc.getbalance()), withdrawLimitCell(acc) });
 			}
 			table = new JTable(model);
 			table.setFont(UITheme.fontSmall());
@@ -153,11 +153,16 @@ public class DisplayList extends JFrame {
 				}
 			});
 
+			DefaultTableCellRenderer limitR = new DefaultTableCellRenderer();
+			limitR.setHorizontalAlignment(SwingConstants.RIGHT);
+			table.getColumnModel().getColumn(5).setCellRenderer(limitR);
+
 			table.getColumnModel().getColumn(0).setPreferredWidth(36);
 			table.getColumnModel().getColumn(1).setPreferredWidth(88);
-			table.getColumnModel().getColumn(2).setPreferredWidth(200);
-			table.getColumnModel().getColumn(3).setPreferredWidth(96);
+			table.getColumnModel().getColumn(2).setPreferredWidth(180);
+			table.getColumnModel().getColumn(3).setPreferredWidth(88);
 			table.getColumnModel().getColumn(4).setPreferredWidth(100);
+			table.getColumnModel().getColumn(5).setPreferredWidth(128);
 
 			tfFilter.getDocument().addDocumentListener(new DocumentListener() {
 				private void applyFilter() {
@@ -171,7 +176,7 @@ public class DisplayList extends JFrame {
 						@Override
 						public boolean include(
 								Entry<? extends DefaultTableModel, ? extends Integer> entry) {
-							for (int col : new int[] { 1, 2, 3 }) {
+							for (int col : new int[] { 1, 2, 3, 5 }) {
 								Object v = entry.getValue(col);
 								if (v != null
 										&& v.toString().toLowerCase(java.util.Locale.ROOT)
@@ -217,7 +222,7 @@ public class DisplayList extends JFrame {
 		}
 		root.add(center, BorderLayout.CENTER);
 
-		setMinimumSize(new java.awt.Dimension(680, 460));
+		setMinimumSize(new java.awt.Dimension(820, 460));
 		pack();
 		setLocationRelativeTo(null);
 	}
@@ -268,5 +273,13 @@ public class DisplayList extends JFrame {
 			return "Savings";
 		}
 		return "Account";
+	}
+
+	/** Per-transaction cap for savings/student; not used for current accounts. */
+	private static String withdrawLimitCell(BankAccount a) {
+		if (a instanceof SavingsAccount) {
+			return String.format("%.2f", ((SavingsAccount) a).getMaxWithdrawLimit());
+		}
+		return "—";
 	}
 }

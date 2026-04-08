@@ -31,7 +31,9 @@ import Data.FileIO;
 public class Menu extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private static final int ACTION_WIDTH = 340;
+	/** Full width for the save / log out bar (matches two grid columns + gap). */
+	private static final int MENU_SAVE_WIDTH = 500;
+	private static final int MENU_GRID_GAP = 10;
 	private static final String BANNER_TITLE = "ApexTrust Retail Banking";
 	private static final String BANNER_TAG = "Account servicing · Cash movements · Reporting";
 
@@ -129,6 +131,9 @@ public class Menu extends JFrame {
 
 		FileIO.Read();
 
+		menuGridCol = 0;
+		menuGridRow = 0;
+
 		JPanel body = new JPanel(new BorderLayout(32, 0));
 		body.setOpaque(false);
 		body.setBorder(new EmptyBorder(24, 36, 20, 36));
@@ -149,20 +154,29 @@ public class Menu extends JFrame {
 		setMenuHintHtml();
 		hint.setAlignmentX(Component.CENTER_ALIGNMENT);
 		actions.add(hint);
-		actions.add(Box.createVerticalStrut(22));
-
-		addTaskAction(actions, new JButton("Add account"), e -> openSingle(GUIForm.addaccount));
-		addTaskAction(actions, new JButton("Deposit to account"), e -> openSingle(GUIForm.depositacc));
-		addTaskAction(actions, new JButton("Withdraw from account"), e -> openSingle(GUIForm.withdraw));
-		addTaskAction(actions, new JButton("Display account list"), e -> openSingle(GUIForm.displaylist));
-		addTaskAction(actions, new JButton("Transaction report"), e -> openTransactionReport());
-
 		actions.add(Box.createVerticalStrut(18));
 
+		JPanel taskGrid = new JPanel(new GridBagLayout());
+		taskGrid.setOpaque(false);
+		taskGrid.setAlignmentX(Component.CENTER_ALIGNMENT);
+		GridBagConstraints mg = new GridBagConstraints();
+		mg.insets = new Insets(5, MENU_GRID_GAP / 2, 5, MENU_GRID_GAP / 2);
+		mg.fill = GridBagConstraints.BOTH;
+		mg.weightx = 0.5;
+		mg.weighty = 0;
+
+		addMenuTask(taskGrid, mg, new JButton("Add account"), e -> openSingle(GUIForm.addaccount));
+		addMenuTask(taskGrid, mg, new JButton("Deposit to account"), e -> openSingle(GUIForm.depositacc));
+		addMenuTask(taskGrid, mg, new JButton("Withdraw from account"), e -> openSingle(GUIForm.withdraw));
+		addMenuTask(taskGrid, mg, new JButton("Update withdrawal limit"), e -> openSingle(GUIForm.updateWithdrawLimit));
+		addMenuTask(taskGrid, mg, new JButton("Display account list"), e -> openSingle(GUIForm.displaylist));
+		addMenuTask(taskGrid, mg, new JButton("Transaction report"), e -> openTransactionReport());
+
+		actions.add(taskGrid);
+		actions.add(Box.createVerticalStrut(16));
+
 		btnSaveLogout = new JButton("Save and Log out");
-		UITheme.stylePrimaryButton(btnSaveLogout);
-		UITheme.styleMenuActionButton(btnSaveLogout, ACTION_WIDTH);
-		btnSaveLogout.setHorizontalAlignment(SwingConstants.CENTER);
+		styleSaveLogoutButton();
 		btnSaveLogout.addActionListener(e -> saveAndReturnToLogin());
 		btnSaveLogout.setAlignmentX(Component.CENTER_ALIGNMENT);
 		actions.add(btnSaveLogout);
@@ -187,24 +201,41 @@ public class Menu extends JFrame {
 		rootPanel.add(footerPanel, BorderLayout.SOUTH);
 
 		setContentPane(rootPanel);
-		setMinimumSize(new Dimension(780, 620));
+		setMinimumSize(new Dimension(780, 560));
 		pack();
 		setLocationRelativeTo(null);
 		refreshDashboard();
 	}
 
-	private void addTaskAction(JPanel actions, JButton btn, java.awt.event.ActionListener listener) {
+	private int menuGridCol;
+	private int menuGridRow;
+
+	private void addMenuTask(JPanel grid, GridBagConstraints mg, JButton btn,
+			java.awt.event.ActionListener listener) {
 		btn.addActionListener(listener);
-		UITheme.styleMenuActionButton(btn, ACTION_WIDTH);
-		actions.add(btn);
-		actions.add(Box.createVerticalStrut(10));
+		UITheme.styleMenuGridCellButton(btn);
+		mg.gridx = menuGridCol;
+		mg.gridy = menuGridRow;
+		mg.gridwidth = 1;
+		grid.add(btn, mg);
 		taskButtons.add(btn);
+		menuGridCol++;
+		if (menuGridCol > 1) {
+			menuGridCol = 0;
+			menuGridRow++;
+		}
+	}
+
+	private void styleSaveLogoutButton() {
+		UITheme.stylePrimaryButton(btnSaveLogout);
+		UITheme.styleMenuActionButton(btnSaveLogout, MENU_SAVE_WIDTH);
+		btnSaveLogout.setHorizontalAlignment(SwingConstants.CENTER);
 	}
 
 	private void setMenuHintHtml() {
 		hint.setText(UITheme.htmlDiv(
 				"Select a task below. Each module opens in its own window. Choosing the same task again brings that window to the front (Close or ✕ hides it).",
-				360, UITheme.PAGE_SECONDARY));
+				480, UITheme.PAGE_SECONDARY));
 	}
 
 	private void applyComboThemeColors() {
@@ -269,10 +300,9 @@ public class Menu extends JFrame {
 		setMenuHintHtml();
 
 		for (JButton b : taskButtons) {
-			UITheme.styleMenuActionButton(b, ACTION_WIDTH);
+			UITheme.styleMenuGridCellButton(b);
 		}
-		UITheme.stylePrimaryButton(btnSaveLogout);
-		UITheme.styleMenuActionButton(btnSaveLogout, ACTION_WIDTH);
+		styleSaveLogoutButton();
 
 		footerPanel.setBackground(UITheme.PAGE_BG);
 		for (Component c : footerPanel.getComponents()) {
@@ -292,7 +322,7 @@ public class Menu extends JFrame {
 	private static void hideToolWindows() {
 		JFrame[] tools = { GUIForm.addaccount, GUIForm.addcurrentacc, GUIForm.addsavingsaccount,
 				GUIForm.addstudentaccount, GUIForm.displaylist, GUIForm.depositacc, GUIForm.withdraw,
-				GUIForm.transactionReport };
+				GUIForm.updateWithdrawLimit, GUIForm.transactionReport };
 		for (JFrame f : tools) {
 			if (f != null && f.isVisible()) {
 				f.setVisible(false);

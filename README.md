@@ -73,7 +73,7 @@ If you run without `src` on the classpath (`java -cp bin Application` only), ima
 ## Using the app
 
 1. **Login:** Enter **Username** `admin` and **Password** `admin`, then click **Sign in**.
-2. **Main menu:** Choose **Add Account** (savings, current, or student), **Deposit To Account**, **Withdraw From Account**, **Display Account List**, or **Transaction report** (per-account history of opening balance, deposits, and withdrawals).
+2. **Main menu:** Choose **Add Account** (savings, current, or student), **Deposit To Account**, **Withdraw From Account**, **Update withdrawal limit** (savings/student per-transaction cap), **Display Account List**, or **Transaction report** (per-account history of opening balance, deposits, and withdrawals).
 3. **Account numbers:** Each new account gets a random **5-digit Id** (digits only—this is what you type for deposit and withdraw). After you add an account, the success dialog shows the new Id. You can also open **Display Account List** (treat it as confidential).
 4. **Save and log out:** Use **Save and Log out** on the main menu, or close the main window with **×**—both write the `data` file, close open tool windows, hide the menu, and return to the **Sign in** screen (no popup). Quit the app by closing the login window.
 

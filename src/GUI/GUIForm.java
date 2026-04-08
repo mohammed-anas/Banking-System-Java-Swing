@@ -18,6 +18,7 @@ public class GUIForm {
 	public static DisplayList displaylist= new DisplayList();
 	public static DepositAcc depositacc= new DepositAcc();
 	public static WithdrawAcc withdraw = new WithdrawAcc();
+	public static UpdateWithdrawLimit updateWithdrawLimit = new UpdateWithdrawLimit();
 	public static TransactionReport transactionReport = new TransactionReport();
 	
 	public static void UpdateDisplay()
@@ -48,7 +49,7 @@ public class GUIForm {
 			login.reapplyChromeAfterTheme();
 		}
 		JFrame[] tools = { addaccount, addcurrentacc, addsavingsaccount, addstudentaccount, displaylist, depositacc,
-				withdraw, transactionReport };
+				withdraw, updateWithdrawLimit, transactionReport };
 		for (JFrame f : tools) {
 			if (f == null) {
 				continue;
@@ -79,6 +80,9 @@ public class GUIForm {
 		}
 		if (withdraw != null) {
 			withdraw.applyThemeColors();
+		}
+		if (updateWithdrawLimit != null) {
+			updateWithdrawLimit.applyThemeColors();
 		}
 		if (transactionReport != null) {
 			transactionReport.applyThemeColors();
