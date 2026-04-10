@@ -52,6 +52,7 @@ public class TransactionReport extends JFrame {
 	private DefaultTableModel tableModel;
 	private JLabel lblSummary;
 	private String lastReportAccountId = "";
+	private String lastReportHolderName = "";
 
 	public TransactionReport() {
 		setTitle("ApexTrust — Transaction report");
@@ -234,7 +235,7 @@ public class TransactionReport extends JFrame {
 		lastReportAccountId = id;
 		tableModel.setRowCount(0);
 		List<TransactionRecord> history = acc.getTransactionHistory();
-		String holder = ClientSafeInput.maskHolderName(acc.getName());
+		String holder = acc.getName() == null ? "" : acc.getName().trim();
 		int n = history.size();
 
 		int rowNum = 1;
@@ -251,6 +252,7 @@ public class TransactionReport extends JFrame {
 			tableModel.addRow(new Object[] { Integer.valueOf(rowNum++), TIME_FMT.format(new Date(r.getTimestampMs())),
 					typeLabel, amountStr, String.format("%.2f", r.getBalanceAfter()) });
 		}
+		lastReportHolderName = holder;
 		setSummaryHtml(id, holder, n, acc.getbalance(), anyLegacy);
 	}
 
@@ -288,6 +290,10 @@ public class TransactionReport extends JFrame {
 		try (PrintWriter pw = new PrintWriter(
 				new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8))) {
 			if (csv) {
+				pw.println(joinCsv("Account Id", lastReportAccountId));
+				pw.println(joinCsv("Account holder", lastReportHolderName));
+				pw.println(joinCsv("Generated", TIME_FMT.format(new Date())));
+				pw.println();
 				pw.println(joinCsv("#", "Date/time", "Type", "Amount", "Balance after"));
 				int cols = tableModel.getColumnCount();
 				for (int r = 0; r < tableModel.getRowCount(); r++) {
@@ -301,6 +307,7 @@ public class TransactionReport extends JFrame {
 			} else {
 				pw.println("ApexTrust — Transaction report");
 				pw.println("Account Id: " + lastReportAccountId);
+				pw.println("Account holder: " + lastReportHolderName);
 				pw.println("Generated: " + TIME_FMT.format(new Date()));
 				pw.println();
 				for (int r = 0; r < tableModel.getRowCount(); r++) {
