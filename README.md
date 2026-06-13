@@ -1,4 +1,4 @@
-# Banking System (ApexTrust Retail Banking — demo UI)
+# Banking System (ApexTrust Retail Banking — demo)
 
 Desktop banking demo built with Java Swing, with an **enterprise-style console** (navy / gold theme, header banner, optional logo). You can add savings, current, and student accounts; deposit and withdraw; list accounts; and persist all data to a local file.
 
